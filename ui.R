@@ -1,5 +1,4 @@
 library(shiny)
-library(shinydashboard)
 
 
 shinyUI(fluidPage(
@@ -9,13 +8,15 @@ shinyUI(fluidPage(
   
   fluidRow(
     
-    column(2, wellPanel(
-      radioButtons("rating", "Rating:",
-                   c("Green", "Yellow", "Red"))
+    column( 2, wellPanel(
+      imageOutput("rating1")
     )),
-    
-    column(4, wellPanel(
-           imageOutput("rating1")
+
+    column(6, wellPanel(
+      radioButtons("rating", "Rating:",
+                   choices = c("Green", "Yellow", "Red")),
+      dateInput(inputId = "date", label = "Date")
     ))
+    
   )
 ))
