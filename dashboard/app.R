@@ -28,7 +28,10 @@ body <- dashboardBody(
                                                     "Yellow" = 2,
                                                     "Red" = 3)
                                      )
-                         )
+                         ),
+                  column( 2, wellPanel(
+                    imageOutput("rating1")
+                  ))
                   )
             )),
     tabItem("rawData")
@@ -37,6 +40,34 @@ body <- dashboardBody(
 
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
-server <- function(input, output) { }
+server <- function(input, output) {
+  # rating1 sends pre-rendered png
+  output$rating1 <- renderImage({
+    if (is.null(input$rating))
+      return(NULL)
+    
+    if (input$rating == 1) {
+      return(list(
+        src = "images/green.png",
+        contentType = "image/png",
+        alt = "Green"
+      ))
+    } else if (input$rating == 2) {
+      return(list(
+        src = "images/yellow.png",
+        filetype = "image/png",
+        alt = "Yellow"
+      ))
+    } else if (input$rating == 3) {
+      return(list(
+        src = "images/red.png",
+        filetype = "image/png",
+        alt = "Red"
+      ))
+    }
+    
+  }, deleteFile = FALSE)
+  
+}
 
 shinyApp(ui, server)
