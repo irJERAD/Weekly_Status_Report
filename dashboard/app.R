@@ -23,15 +23,15 @@ body <- dashboardBody(
                          ),
                   column(width = 4,
                          selectInput(inputId = "role", label = "Your Role:", 
-                                     choices = list("Account Manager" = 1,
-                                                    "Project Manager" = 2,
-                                                    "Technical Lead" = 3,
-                                                    "Quality Assurance" = 4)
+                                     choices = list("Account Manager" = "AM",
+                                                    "Project Manager" = "PM",
+                                                    "Technical Lead" = "TL",
+                                                    "Quality Assurance" = "QA")
                                      ),
                          selectInput(inputId = "rating", label = "Your Rating:", 
-                                     choices = list("Green" = 1,
-                                                    "Yellow" = 2,
-                                                    "Red" = 3)
+                                     choices = list("Green" = "green",
+                                                    "Yellow" = "yellow",
+                                                    "Red" = "red")
                                      )
                          ),
                   # Render Color circle image for rating
@@ -59,19 +59,19 @@ server <- function(input, output) {
     if (is.null(input$rating))
       return(NULL)
     
-    if (input$rating == 1) {
+    if (input$rating == "green") {
       return(list(
         src = "images/green.png",
         contentType = "image/png",
         alt = "Green"
       ))
-    } else if (input$rating == 2) {
+    } else if (input$rating == "yellow") {
       return(list(
         src = "images/yellow.png",
         filetype = "image/png",
         alt = "Yellow"
       ))
-    } else if (input$rating == 3) {
+    } else if (input$rating == "red") {
       return(list(
         src = "images/red.png",
         filetype = "image/png",
