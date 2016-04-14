@@ -16,9 +16,12 @@ body <- dashboardBody(
     tabItem("inputRating",
             fluidRow(
               box(title = "Project Status", width = 12,
-                  # User input for Project Name, Role, Rating and Date
+                  # User input for Project Name and Date
                   column(width = 4,
                          textInput(inputId = "projectName", label = "Project Name"),
+                         dateInput(inputId = "date", label = "Date:")
+                         ),
+                  column(width = 4,
                          selectInput(inputId = "role", label = "Your Role:", 
                                      choices = list("Account Manager" = 1,
                                                     "Project Manager" = 2,
@@ -32,7 +35,7 @@ body <- dashboardBody(
                                      )
                          ),
                   # Render Color circle image for rating
-                  column(width = 2, offset = 2,
+                  column(width = 2, offset = 1,
                     imageOutput("rating1", height = "auto")
                     )
                   )
@@ -42,7 +45,7 @@ body <- dashboardBody(
                   tags$textarea(id="summary", rows=8, cols="100",
                                 placeholder = "This week in our project...")
                   )
-            )
+              )
             ),
     tabItem("rawData")
     )
