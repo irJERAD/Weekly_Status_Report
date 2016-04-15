@@ -1,6 +1,4 @@
-library(shiny)
-library(shinydashboard)
-
+source('global.R', local = TRUE)
 
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
@@ -21,6 +19,7 @@ body <- dashboardBody(
                          textInput(inputId = "projectName", label = "Project Name"),
                          dateInput(inputId = "date", label = "Date:")
                          ),
+                  # User input for Role and Rating color
                   column(width = 4,
                          selectInput(inputId = "role", label = "Your Role:", 
                                      choices = list("Account Manager" = "AM",
@@ -36,10 +35,11 @@ body <- dashboardBody(
                          ),
                   # Render Color circle image for rating
                   column(width = 2, offset = 1,
-                    imageOutput("rating1", height = "auto")
+                    imageOutput("rating", height = "auto")
                     )
                   )
               ),
+            # Text input for project summary
             fluidRow(
               box(title = "Project Summary", width = 12,
                   tags$textarea(id="summary", rows=8, cols="100",
@@ -54,31 +54,35 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output) {
-  # rating1 sends pre-rendered png
-  output$rating1 <- renderImage({
-    if (is.null(input$rating))
-      return(NULL)
+  
+  # rating sends colored circle png based on rating response 
+  output$rating <- renderImage({
+    # Method for rendering pic without global.R function:
     
-    if (input$rating == "green") {
-      return(list(
-        src = "images/green.png",
-        contentType = "image/png",
-        alt = "Green"
-      ))
-    } else if (input$rating == "yellow") {
-      return(list(
-        src = "images/yellow.png",
-        filetype = "image/png",
-        alt = "Yellow"
-      ))
-    } else if (input$rating == "red") {
-      return(list(
-        src = "images/red.png",
-        filetype = "image/png",
-        alt = "Red"
-      ))
-    }
+    # if (is.null(input$rating))
+    #   return(NULL)
+    # 
+    # if (input$rating == "green") {
+    #   return(list(
+    #     src = "images/green.png",
+    #     contentType = "image/png",
+    #     alt = "Green"
+    #   ))
+    # } else if (input$rating == "yellow") {
+    #   return(list(
+    #     src = "images/yellow.png",
+    #     filetype = "image/png",
+    #     alt = "Yellow"
+    #   ))
+    # } else if (input$rating == "red") {
+    #   return(list(
+    #     src = "images/red.png",
+    #     filetype = "image/png",
+    #     alt = "Red"
+    #   )
     
+    # Using global.R function:
+    ratingPic(input$rating)
   }, deleteFile = FALSE)
   
 }
