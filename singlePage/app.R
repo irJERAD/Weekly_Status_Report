@@ -7,6 +7,7 @@ library(googlesheets)
 library(DT)
 
 
+
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
   sidebarMenu(
@@ -56,8 +57,8 @@ body <- dashboardBody(
               )
             ),
     tabItem("rawData",
-            # Display output of the dataset WSRtbl
-            DT::dataTableOutput(outputId = "WSRtbl", width = "100%", height = "auto")
+            # show practice weekly status report
+            dataTableOutput('WSRtbl')
             )
     )
   )
@@ -99,10 +100,14 @@ server <- function(input, output) {
     }
   }, deleteFile = FALSE)
   
-  # Render datatable output for dataset
-  ouput$WSRtbl = renderDataTable({
+  # grab table from google sheets
+  sheet <- gs_title("practiceWSR")
+  tbl <- gs_read_csv(sheet)
+  # render table as server output to be used in the ui
+  output$WSRtbl <- renderDataTable({
+    tbl
   })
-  
+
 }
 
 shinyApp(ui, server)
