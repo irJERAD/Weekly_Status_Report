@@ -1,4 +1,8 @@
-source('global.R', local = TRUE)
+# for a multifile system with a global file use below line
+#source('global.R', local = TRUE)
+
+library(shiny)
+library(shinydashboard)
 
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
@@ -58,31 +62,34 @@ server <- function(input, output) {
   # rating sends colored circle png based on rating response 
   output$rating <- renderImage({
     # Method for rendering pic without global.R function:
-    
-    # if (is.null(input$rating))
-    #   return(NULL)
-    # 
-    # if (input$rating == "green") {
-    #   return(list(
-    #     src = "images/green.png",
-    #     contentType = "image/png",
-    #     alt = "Green"
-    #   ))
-    # } else if (input$rating == "yellow") {
-    #   return(list(
-    #     src = "images/yellow.png",
-    #     filetype = "image/png",
-    #     alt = "Yellow"
-    #   ))
-    # } else if (input$rating == "red") {
-    #   return(list(
-    #     src = "images/red.png",
-    #     filetype = "image/png",
-    #     alt = "Red"
-    #   )
-    
-    # Using global.R function:
-    ratingPic(input$rating)
+    if (is.null(input$rating))
+      return(NULL)
+
+    if (input$rating == "green") {
+      return(
+        list(
+          src = "images/green.png",
+          contentType = "image/png",
+          alt = "Green"
+          )
+        )
+    } else if (input$rating == "yellow") {
+      return(
+        list(
+          src = "images/yellow.png",
+          filetype = "image/png",
+          alt = "Yellow"
+          )
+        )
+    } else if (input$rating == "red") {
+      return(
+        list(
+          src = "images/red.png",
+          filetype = "image/png",
+          alt = "Red"
+          )
+      )
+    }
   }, deleteFile = FALSE)
   
 }
