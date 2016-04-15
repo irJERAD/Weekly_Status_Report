@@ -102,6 +102,7 @@ server <- function(input, output) {
   
   # grab table from google sheets
   sheet <- gs_title("practiceWSR")
+  # consider gs_read(sheet); currently believe csv is faster - untested
   tbl <- gs_read_csv(sheet)
   # render table as server output to be used in the ui
   output$WSRtbl <- renderDataTable({
