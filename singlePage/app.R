@@ -3,6 +3,9 @@
 
 library(shiny)
 library(shinydashboard)
+library(googlesheets)
+library(DT)
+
 
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
@@ -47,11 +50,15 @@ body <- dashboardBody(
             fluidRow(
               box(title = "Project Summary", width = 12,
                   tags$textarea(id="summary", rows=8, cols="100",
-                                placeholder = "This week in our project...")
+                                placeholder = "This week in our project..."),
+                  actionButton(inputId = "submit", label = "Submit")
                   )
               )
             ),
-    tabItem("rawData")
+    tabItem("rawData",
+            # Display output of the dataset WSRtbl
+            DT::dataTableOutput(outputId = "WSRtbl", width = "100%", height = "auto")
+            )
     )
   )
 
@@ -91,6 +98,10 @@ server <- function(input, output) {
       )
     }
   }, deleteFile = FALSE)
+  
+  # Render datatable output for dataset
+  ouput$WSRtbl = renderDataTable({
+  })
   
 }
 
