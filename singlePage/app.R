@@ -8,11 +8,7 @@ library(DT)
 
 ## Global Functions
 
-# grab table from google sheets
-sheet <- gs_title("practiceWSR")
-# consider gs_read(sheet); currently believe csv is faster - untested
-tbl <- gs_read_csv(sheet)
-# render table as server output to be used in the ui
+
 
 
 header <- dashboardHeader(title = "Weekly Status Reports")
@@ -109,13 +105,21 @@ server <- function(input, output) {
   
   # Display current State of sheet data
   output$WSRtbl <- renderDataTable({
+    # grab table from google sheets
+    sheet <- gs_title("practiceWSR")
+    # consider gs_read(sheet); currently believe csv is faster - untested
+    tbl <- gs_read_csv(sheet)
+    # render table as server output to be used in the ui
     tbl
   })
 
   # Add new row based on user input after pressing submit
   observeEvent(input$submit, {
+    
+    # cast inpust$date as character or all following input will look for date objects
+    date <- as.character(input$date)
     gs_title("practiceWSR") %>% 
-      gs_add_row(input = c(input$date, input$projectName, input$role, 
+      gs_add_row(input = c(date, input$projectName, input$role, 
                            input$rating, input$summary))
   })
 }
