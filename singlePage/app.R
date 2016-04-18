@@ -60,12 +60,13 @@ body <- dashboardBody(
               )
             ),
     tabItem("rawData",
-            # show practice weekly status report
-            dataTableOutput('WSRtbl')
+            fluidRow(
+              # show practice weekly status report
+              DT::dataTableOutput("WSRtbl")
+              )
             )
     )
   )
-
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output) {
@@ -121,6 +122,11 @@ server <- function(input, output) {
     gs_title("practiceWSR") %>% 
       gs_add_row(input = c(date, input$projectName, input$role, 
                            input$rating, input$summary))
+    # grab table from google sheets
+    sheet <- gs_title("practiceWSR")
+    # consider gs_read(sheet); currently believe csv is faster - untested
+    tbl <- gs_read_csv(sheet)
+    output$WSRtbl <- renderDataTable(tbl)
   })
 }
 
