@@ -21,7 +21,20 @@ sidebar <- dashboardSidebar(
 )
 body <- dashboardBody(
   tabItems(
-    tabItem("teamRatings"),
+    tabItem("teamRatings",
+            fluidRow(
+              tabBox(
+                id = "teamSummaries", title = "Team Summaries", width = 12,
+                tabPanel(
+                  title = "Summaries", "Team Summaries for today go here"
+                ),
+                tabPanel(
+                  title = "Weekly Status Report OverView", 
+                  "These are the teams that have submited their reports"
+                )
+              )
+            )
+            ),
     tabItem("inputRating",
             fluidRow(
               box(title = "Project Status", width = 12,
