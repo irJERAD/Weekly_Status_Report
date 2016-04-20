@@ -60,10 +60,8 @@ body <- dashboardBody(
               )
             ),
     tabItem("rawData",
-            fluidRow(
-              # show practice weekly status report
-              DT::dataTableOutput("WSRtbl")
-              )
+            # show practice weekly status report
+            DT::dataTableOutput("WSRtbl")
             )
     )
   )
