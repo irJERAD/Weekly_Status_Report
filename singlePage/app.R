@@ -8,8 +8,16 @@ library(DT)
 
 ## Global Functions
 
+removeLeadZero <- function(x) {
+  # remove any leading month zero
+  y <- gsub("^0", "\\1", x)
+  # remove any leading day zero; '/' needs to be replaced
+  gsub("/0", "/", y)
+}
 
-
+isToday <- function(x) {
+  removeLeadZero(format(Sys.Date(), "%m/%d/%Y")) == x
+}
 
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
@@ -41,7 +49,7 @@ body <- dashboardBody(
                   # User input for Project Name and Date
                   column(width = 4,
                          textInput(inputId = "projectName", label = "Project Name"),
-                         dateInput(inputId = "date", label = "Date:")
+                         dateInput(inputId = "date", label = "Date:", format = "m-d-yyyy")
                          ),
                   # User input for Role and Rating color
                   column(width = 4,
