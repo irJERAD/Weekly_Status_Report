@@ -5,6 +5,7 @@ library(shiny)
 library(shinydashboard)
 library(googlesheets)
 library(DT)
+library(dplyr)
 
 ## Global Functions
 
@@ -44,7 +45,7 @@ body <- dashboardBody(
                 id = "teamSummaries", title = "Team Summaries", width = 12,
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
-                  title = "Summaries", textOutput("gSummary")
+                  title = "Summaries", htmlOutput("gSummary")
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
@@ -101,14 +102,26 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 server <- function(input, output) {
   
   # get summary info from googlesheet
-  output$gSummary <- renderText({
+  output$gSummary <- renderUI({
     # grab table from google sheets
     sheet <- gs_title("practiceWSR")
     # consider gs_read(sheet); currently believe csv is faster - untested
     tbl <- gs_read_csv(sheet)
+    # grab table of today's entries
+    todayTBL <- today(tbl)
     
-    # grab last summary entry
-    tail(tbl$summary, n = 1)
+    todayTBL$summary
+    
+    txt <- paste("<b>Project:</b>", todayTBL$projectName,
+                 "<b>Role:</b>", todayTBL$role, 
+                 "<b>Rating:</b>", todayTBL$rating, 
+                 "<b>Summary:</b>", todayTBL$summary,
+                 "<br/>", "<br/>", sep = " ")
+    
+    HTML(txt)
+    
+    # txt <- cat(textVector, sep = "\n")
+    # txt
   })
   
   # rating sends colored circle png based on rating response 
