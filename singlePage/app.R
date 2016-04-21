@@ -38,6 +38,7 @@ body <- dashboardBody(
               tabBox(
                 id = "teamSummaries", title = "Team Summaries", width = 12,
                 tabPanel(
+                  # this method requires browser to be refreshed for newer entries
                   title = "Summaries", textOutput("gSummary")
                 ),
                 tabPanel(
@@ -96,6 +97,12 @@ server <- function(input, output) {
   
   # get summary info from googlesheet
   output$gSummary <- renderText({
+    # grab table from google sheets
+    sheet <- gs_title("practiceWSR")
+    # consider gs_read(sheet); currently believe csv is faster - untested
+    tbl <- gs_read_csv(sheet)
+    
+    # grab last summary entry
     tail(tbl$summary, n = 1)
   })
   
