@@ -23,6 +23,11 @@ isToday <- function(inputDate) {
   removeLeadZero(format(Sys.Date(), "%m/%d/%Y")) == inputDate
 }
 
+today <- function(gsTBL) {
+  # subset input gsTBL only returning today's inputs
+  gsTBL[isToday(gsTBL$timeStamp),]
+}
+
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
   sidebarMenu(
