@@ -13,10 +13,14 @@ removeLeadZero <- function(x) {
   y <- gsub("^0", "\\1", x)
   # remove any leading day zero; '/' needs to be replaced
   gsub("/0", "/", y)
+  
+  ## TODO:
+  # Consider making no input and just using today's date
+  # since this function should only be used on Sys.Date() input
 }
 
-isToday <- function(x) {
-  removeLeadZero(format(Sys.Date(), "%m/%d/%Y")) == x
+isToday <- function(inputDate) {
+  removeLeadZero(format(Sys.Date(), "%m/%d/%Y")) == inputDate
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports")
@@ -34,7 +38,7 @@ body <- dashboardBody(
               tabBox(
                 id = "teamSummaries", title = "Team Summaries", width = 12,
                 tabPanel(
-                  title = "Summaries", "Team Summaries for today go here"
+                  title = "Summaries", textOutput("gSummary")
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
@@ -89,6 +93,11 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output) {
+  
+  # get summary info from googlesheet
+  output$gSummary <- renderText({
+    tail(tbl$summary, n = 1)
+  })
   
   # rating sends colored circle png based on rating response 
   output$rating <- renderImage({
