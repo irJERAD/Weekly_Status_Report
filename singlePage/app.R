@@ -5,9 +5,25 @@ library(shiny)
 library(shinydashboard)
 library(googlesheets)
 library(DT)
-library(dplyr)
 
 ## Global Functions
+
+# name of google sheet being used
+table <- "practiceWSR"
+
+saveData <- function(data) {
+  # get google sheet
+  sheet <- gs_title(table)
+  # add new row
+  gs_add_row(sheet, input = data)
+}
+
+loadData <- function() {
+  # get google sheet
+  sheet <- gs_title(table)
+  # read the data
+  gs_read_csv(sheet)
+}
 
 removeLeadZero <- function(x) {
   # remove any leading month zero
@@ -104,9 +120,7 @@ server <- function(input, output) {
   # get summary info from googlesheet
   output$gSummary <- renderUI({
     # grab table from google sheets
-    sheet <- gs_title("practiceWSR")
-    # consider gs_read(sheet); currently believe csv is faster - untested
-    tbl <- gs_read_csv(sheet)
+    tbl <- loadData()
     # grab table of today's entries
     todayTBL <- today(tbl)
     
@@ -120,8 +134,6 @@ server <- function(input, output) {
     
     HTML(txt)
     
-    # txt <- cat(textVector, sep = "\n")
-    # txt
   })
   
   # rating sends colored circle png based on rating response 
@@ -160,9 +172,7 @@ server <- function(input, output) {
   # Display current State of sheet data
   output$WSRtbl <- renderDataTable({
     # grab table from google sheets
-    sheet <- gs_title("practiceWSR")
-    # consider gs_read(sheet); currently believe csv is faster - untested
-    tbl <- gs_read_csv(sheet)
+    tbl <- loadData()
     # render table as server output to be used in the ui
     tbl
   })
@@ -172,14 +182,17 @@ server <- function(input, output) {
     
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
-    gs_title("practiceWSR") %>% 
-      gs_add_row(input = c(date, input$projectName, input$role, 
-                           input$rating, input$summary))
-    # grab table from google sheets
-    sheet <- gs_title("practiceWSR")
-    # consider gs_read(sheet); currently believe csv is faster - untested
-    tbl <- gs_read_csv(sheet)
+    data = c(date, input$projectName, input$role,input$rating, input$summary)
+    # update google sheet
+    saveData(data)
+    
+    # # grab table from google sheets
+    tbl <- loadData()
+    # update raw data view
     output$WSRtbl <- renderDataTable(tbl)
+    
+    ## TODO place renderUI with abstracted Project Summaries into HTML for auto update
+    
   })
 }
 
