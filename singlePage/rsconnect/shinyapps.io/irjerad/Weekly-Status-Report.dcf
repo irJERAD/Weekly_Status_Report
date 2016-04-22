@@ -2,8 +2,8 @@ name: Weekly-Status-Report
 account: irjerad
 server: shinyapps.io
 appId: 96622
-bundleId: 428345
+bundleId: 429720
 url: https://irjerad.shinyapps.io/Weekly-Status-Report/
-when: 1461279481.42881
+when: 1461343600.17342
 asMultiple: FALSE
 asStatic: FALSE
