@@ -14,7 +14,8 @@ library(DT)
 # define roles
 roleList <- list("Account Manager", "Project Manager",
                  "Technical Lead", "Quality Assurance")
-
+# define project names
+projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico")
 ## Global Functions
 
 # name of google sheet being used
@@ -85,7 +86,8 @@ body <- dashboardBody(
               box(title = "Project Status", width = 12,
                   # User input for Project Name and Date
                   column(width = 4,
-                         textInput(inputId = "projectName", label = "Project Name"),
+                         selectInput(inputId = "projectName", label = "Project Name:",
+                                     choices = projectNames),
                          dateInput(inputId = "date", label = "Date:", format = "m-d-yyyy")
                          ),
                   # User input for Role and Rating color
