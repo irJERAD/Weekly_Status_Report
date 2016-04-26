@@ -6,6 +6,15 @@ library(shinydashboard)
 library(googlesheets)
 library(DT)
 
+## Global
+## Global Variables
+
+# define current projects
+
+# define roles
+roleList <- list("Account Manager", "Project Manager",
+                 "Technical Lead", "Quality Assurance")
+
 ## Global Functions
 
 # name of google sheet being used
@@ -45,6 +54,7 @@ today <- function(gsTBL) {
   gsTBL[isToday(gsTBL$timeStamp),]
 }
 
+
 header <- dashboardHeader(title = "Weekly Status Reports")
 sidebar <- dashboardSidebar(
   sidebarMenu(
@@ -81,15 +91,12 @@ body <- dashboardBody(
                   # User input for Role and Rating color
                   column(width = 4,
                          selectInput(inputId = "role", label = "Your Role:", 
-                                     choices = list("Account Manager" = "AM",
-                                                    "Project Manager" = "PM",
-                                                    "Technical Lead" = "TL",
-                                                    "Quality Assurance" = "QA")
+                                     choices = roleList
                                      ),
                          selectInput(inputId = "rating", label = "Your Rating:", 
-                                     choices = list("Green" = "green",
-                                                    "Yellow" = "yellow",
-                                                    "Red" = "red")
+                                     choices = list("Green",
+                                                    "Yellow",
+                                                    "Red")
                                      )
                          ),
                   # Render Color circle image for rating
@@ -142,7 +149,7 @@ server <- function(input, output) {
     if (is.null(input$rating))
       return(NULL)
 
-    if (input$rating == "green") {
+    if (input$rating == "Green") {
       return(
         list(
           src = "images/green.png",
@@ -150,7 +157,7 @@ server <- function(input, output) {
           alt = "Green"
           )
         )
-    } else if (input$rating == "yellow") {
+    } else if (input$rating == "Yellow") {
       return(
         list(
           src = "images/yellow.png",
@@ -158,7 +165,7 @@ server <- function(input, output) {
           alt = "Yellow"
           )
         )
-    } else if (input$rating == "red") {
+    } else if (input$rating == "Red") {
       return(
         list(
           src = "images/red.png",
