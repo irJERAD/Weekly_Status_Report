@@ -7,6 +7,11 @@ library(googlesheets)
 library(DT)
 
 ## Global
+
+## Global Options
+options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
+options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekly-Status-Report/")
+options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
 ## Global Variables
 
 # define current projects
@@ -56,7 +61,9 @@ today <- function(gsTBL) {
 }
 
 
-header <- dashboardHeader(title = "Weekly Status Reports")
+header <- dashboardHeader(title = "Weekly Status Reports",
+                          uiOutput("loginButton")
+                          )
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Team Ratings", tabName = "teamRatings", icon = icon("group")),
@@ -124,7 +131,7 @@ body <- dashboardBody(
   )
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   # get summary info from googlesheet
   output$gSummary <- renderUI({
@@ -203,6 +210,32 @@ server <- function(input, output) {
     ## TODO place renderUI with abstracted Project Summaries into HTML for auto update
     
   })
+  
+  ## Get auth code from return URL
+  access_token  <- reactive({
+    ## gets all the parameters in the URL. The auth code should be one of them.
+    pars <- parseQueryString(session$clientData$url_search)
+    
+    if(length(pars$code) > 0) {
+      ## extract the authorization code
+      gs_webapp_get_token(auth_code = pars$code)
+    } else {
+      NULL
+    }
+  })
+  
+  ## Make a button to link to Google auth screen
+  ## If auth_code is returned then don't show login button
+  output$loginButton <- renderUI({
+    if(is.null(isolate(access_token()))) {
+      actionButton("loginButton",
+                   label = a("Authorize App",
+                             href = gs_webapp_auth_url()))
+    } else {
+      return()
+    }
+  })
+
 }
 
 shinyApp(ui, server)
