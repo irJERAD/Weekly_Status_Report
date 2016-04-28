@@ -125,7 +125,7 @@ body <- dashboardBody(
                   ),
                   fluidRow(
                     column(width = 12, offset = 0,
-                           textInput(inputId = "oneLiner", width = "90%",
+                           textInput(inputId = "oneLiner", width = "100%",
                                      label = "One Liner:", placeholder = "One line that says it all...")
                     )
                   )
