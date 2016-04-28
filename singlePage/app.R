@@ -111,7 +111,11 @@ renderUI({
 
 # create dynamic boxes based on number projects in projectNames
 digestBoxes <- function(tbl) {
-  box(title = tbl$projectName)
+  box(
+    title = tbl$projectName,
+    tags$img(src = paste0("half",tbl$rating,".png")),
+    tbl$rating, tbl$role, tbl$oneLiner
+  )
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports",
@@ -131,8 +135,14 @@ body <- dashboardBody(
               tabBox(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
+                  title = "boxes",
+                  digestBoxes(tail(loadData(), n = 1))
+                ),
+                tabPanel(
                   # this method requires browser to be refreshed for newer entries
-                  title = "Digests", htmlOutput("gDigest")
+                  title = "Digests", htmlOutput("gDigest"),
+                  br(), "hello",
+                  imageOutput("digestColor", height = "auto")
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
@@ -174,7 +184,7 @@ body <- dashboardBody(
                   ),
                   # Render Color circle image for rating
                   column(width = 2, offset = 1,
-                         imageOutput("rating", height = "auto")
+                         imageOutput("ratingImg", height = "auto")
                   ),
                   fluidRow(
                     column(width = 12, offset = 0,
@@ -207,9 +217,16 @@ server <- function(input, output, session) {
   output$gDigest <- digest()
   
   # rating sends colored circle png based on rating response 
-  output$rating <- renderImage({
-    # Method for rendering pic without global.R function:
+  output$ratingImg <- renderImage({
+    # render rating color pic with global.R function
     ratingPic(input$rating)
+  }, deleteFile = FALSE)
+  
+  # attempt for digest color rating -----------------------------------
+  output$digestColor <- renderImage({
+    tbl <- loadData()
+    dColor <- tail(tbl, n = 1)
+    ratingPic(dColor$rating)
   }, deleteFile = FALSE)
   
   # Display current State of sheet data
