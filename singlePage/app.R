@@ -20,7 +20,7 @@ options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8t
 roleList <- list("Account Manager", "Project Manager",
                  "Technical Lead", "Quality Assurance")
 # define project names
-projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico")
+projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly Status Report")
 ## Global Functions
 
 # name of google sheet being used
@@ -157,12 +157,12 @@ server <- function(input, output, session) {
     # grab table of today's entries
     todayTBL <- today(tbl)
     
-    todayTBL$summary
+    todayTBL$oneLine
     
     txt <- paste("<b>Project:</b>", todayTBL$projectName,
                  "<b>Role:</b>", todayTBL$role, 
                  "<b>Rating:</b>", todayTBL$rating, 
-                 "<b>Summary:</b>", todayTBL$summary,
+                 "<b>One Line:</b>", todayTBL$oneLine,
                  "<br/>", "<br/>", sep = " ")
     
     HTML(txt)
@@ -215,7 +215,7 @@ server <- function(input, output, session) {
     
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
-    data = c(date, input$projectName, input$role,input$rating, input$summary)
+    data = c(date, input$projectName, input$role,input$rating, input$summary, input$oneLiner)
     # update google sheet
     saveData(data)
     
