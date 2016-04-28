@@ -14,18 +14,17 @@ options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekl
 options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
 ## Global Variables
 
-# define current projects
-
-# define roles
+  # define roles
 roleList <- list("Account Manager", "Project Manager",
                  "Technical Lead", "Quality Assurance")
-# define project names
+  # define project names
 projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly Status Report")
 ## Global Functions
 
-# name of google sheet being used
+  # name of google sheet being used
 table <- "practiceWSR"
 
+# a function to append data to the bottom row of google sheet 'sheet'
 saveData <- function(data) {
   # get google sheet
   sheet <- gs_title(table)
@@ -33,6 +32,7 @@ saveData <- function(data) {
   gs_add_row(sheet, input = data)
 }
 
+# a function to load data from the google sheet 'sheet' and return a csv
 loadData <- function() {
   # get google sheet
   sheet <- gs_title(table)
@@ -40,6 +40,7 @@ loadData <- function() {
   gs_read_csv(sheet)
 }
 
+# removes leading zero from month and day digits in order to match stings with google sheets format
 removeLeadZero <- function(x) {
   # remove any leading month zero
   y <- gsub("^0", "\\1", x)
@@ -51,10 +52,12 @@ removeLeadZero <- function(x) {
   # since this function should only be used on Sys.Date() input
 }
 
+# checks if inputDate is today; and thus should be used for digest
 isToday <- function(inputDate) {
   removeLeadZero(format(Sys.Date(), "%m/%d/%Y")) == inputDate
 }
 
+# subset gsTBL to only todays values based on timeStamp value
 today <- function(gsTBL) {
   # subset input gsTBL only returning today's inputs
   gsTBL[isToday(gsTBL$timeStamp),]
