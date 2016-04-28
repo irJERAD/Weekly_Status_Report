@@ -60,6 +60,25 @@ today <- function(gsTBL) {
   gsTBL[isToday(gsTBL$timeStamp),]
 }
 
+# rendering functions for server.R and ui.R
+digest <- function() {
+renderUI({
+  # grab table from google sheets
+  tbl <- loadData()
+  # grab table of today's entries
+  todayTBL <- today(tbl)
+  
+  todayTBL$oneLine
+  
+  txt <- paste("<b>Project:</b>", todayTBL$projectName,
+               "<b>Role:</b>", todayTBL$role, 
+               "<b>Rating:</b>", todayTBL$rating, 
+               "<b>One Line:</b>", todayTBL$oneLine,
+               "<br/>", "<br/>", sep = " ")
+  
+  HTML(txt)
+})
+}
 
 header <- dashboardHeader(title = "Weekly Status Reports",
                           uiOutput("loginButton")
@@ -76,10 +95,10 @@ body <- dashboardBody(
     tabItem("teamRatings",
             fluidRow(
               tabBox(
-                id = "teamSummaries", title = "Team Summaries", width = 12,
+                id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
-                  title = "Summaries", htmlOutput("gSummary")
+                  title = "Digests", htmlOutput("gDigest")
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
@@ -150,24 +169,8 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output, session) {
   
-  # get summary info from googlesheet
-  output$gSummary <- renderUI({
-    # grab table from google sheets
-    tbl <- loadData()
-    # grab table of today's entries
-    todayTBL <- today(tbl)
-    
-    todayTBL$oneLine
-    
-    txt <- paste("<b>Project:</b>", todayTBL$projectName,
-                 "<b>Role:</b>", todayTBL$role, 
-                 "<b>Rating:</b>", todayTBL$rating, 
-                 "<b>One Line:</b>", todayTBL$oneLine,
-                 "<br/>", "<br/>", sep = " ")
-    
-    HTML(txt)
-    
-  })
+  # get digest info from googlesheet
+  output$gDigest <- digest()
   
   # rating sends colored circle png based on rating response 
   output$rating <- renderImage({
@@ -224,8 +227,8 @@ server <- function(input, output, session) {
     # update raw data view
     output$WSRtbl <- renderDataTable(tbl)
     
-    ## TODO place renderUI with abstracted Project Summaries into HTML for auto update
-    
+    ## TODO place renderUI with abstracted Project digest into HTML for auto update
+    output$gDigest <- digest()
   })
   
   ## Get auth code from return URL
