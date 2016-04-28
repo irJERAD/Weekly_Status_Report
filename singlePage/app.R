@@ -63,7 +63,7 @@ today <- function(gsTBL) {
 
 header <- dashboardHeader(title = "Weekly Status Reports",
                           uiOutput("loginButton")
-                          )
+)
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Team Ratings", tabName = "teamRatings", icon = icon("group")),
@@ -83,11 +83,22 @@ body <- dashboardBody(
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
-                  "These are the teams that have submited their reports"
+                  "These are the teams that have submited their reports",
+                  div(
+                    # Another way is to use the builder functions; see ?tags.
+                    "Here is",
+                    tags$span(      # Creates an HTML span.
+                      class="foo",  # Any named args become attributes.
+                      
+                      tags$strong("another"),  # Unnamed args become children of the tag.
+                      "way"
+                    ),
+                    "to do it."
+                  )
                 )
               )
             )
-            ),
+    ),
     tabItem("inputRating",
             fluidRow(
               box(title = "Project Status", width = 12,
@@ -96,39 +107,45 @@ body <- dashboardBody(
                          selectInput(inputId = "projectName", label = "Project Name:",
                                      choices = projectNames),
                          dateInput(inputId = "date", label = "Date:", format = "m-d-yyyy")
-                         ),
+                  ),
                   # User input for Role and Rating color
                   column(width = 4,
                          selectInput(inputId = "role", label = "Your Role:", 
                                      choices = roleList
-                                     ),
+                         ),
                          selectInput(inputId = "rating", label = "Your Rating:", 
                                      choices = list("Green",
                                                     "Yellow",
                                                     "Red")
-                                     )
-                         ),
+                         )
+                  ),
                   # Render Color circle image for rating
                   column(width = 2, offset = 1,
-                    imageOutput("rating", height = "auto")
+                         imageOutput("rating", height = "auto")
+                  ),
+                  fluidRow(
+                    column(width = 12, offset = 0,
+                           textInput(inputId = "oneLiner", width = "90%",
+                                     label = "One Liner:", placeholder = "One line that says it all...")
                     )
                   )
-              ),
+              )
+            ),
             # Text input for project summary
             fluidRow(
               box(title = "Project Summary", width = 12,
                   tags$textarea(id="summary", rows=8, cols="110",
                                 placeholder = "This week in our project..."),
                   actionButton(inputId = "submit", label = "Submit")
-                  )
               )
-            ),
+            )
+    ),
     tabItem("rawData",
             # show practice weekly status report
             DT::dataTableOutput("WSRtbl")
-            )
     )
   )
+)
 ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output, session) {
@@ -157,30 +174,30 @@ server <- function(input, output, session) {
     # Method for rendering pic without global.R function:
     if (is.null(input$rating))
       return(NULL)
-
+    
     if (input$rating == "Green") {
       return(
         list(
           src = "images/green.png",
           contentType = "image/png",
           alt = "Green"
-          )
         )
+      )
     } else if (input$rating == "Yellow") {
       return(
         list(
           src = "images/yellow.png",
           filetype = "image/png",
           alt = "Yellow"
-          )
         )
+      )
     } else if (input$rating == "Red") {
       return(
         list(
           src = "images/red.png",
           filetype = "image/png",
           alt = "Red"
-          )
+        )
       )
     }
   }, deleteFile = FALSE)
@@ -192,7 +209,7 @@ server <- function(input, output, session) {
     # render table as server output to be used in the ui
     tbl
   })
-
+  
   # Add new row based on user input after pressing submit
   observeEvent(input$submit, {
     
@@ -235,7 +252,7 @@ server <- function(input, output, session) {
       return()
     }
   })
-
+  
 }
 
 shinyApp(ui, server)
