@@ -5,6 +5,7 @@ library(shiny)
 library(shinydashboard)
 library(googlesheets)
 library(DT)
+suppressMessages(library(dplyr))
 
 ## Global
 
@@ -14,14 +15,14 @@ options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekl
 options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
 ## Global Variables
 
-  # define roles
+# define roles
 roleList <- list("Account Manager", "Project Manager",
                  "Technical Lead", "Quality Assurance")
-  # define project names
+# define project names
 projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly Status Report")
 ## Global Functions
 
-  # name of google sheet being used
+# name of google sheet being used
 table <- "practiceWSR"
 
 # a function to append data to the bottom row of google sheet 'sheet'
@@ -91,31 +92,44 @@ ratingPic <- function(rating) {
 ##=================== server.R / ui.R functions ==============## 
 # rendering function for digest
 digest <- function() {
-renderUI({
-  # grab table from google sheets
-  tbl <- loadData()
-  # grab table of today's entries
-  todayTBL <- today(tbl)
-  
-  todayTBL$oneLine
-  
-  txt <- paste("<b>Project:</b>", todayTBL$projectName,
-               "<b>Role:</b>", todayTBL$role, 
-               "<b>Rating:</b>", todayTBL$rating, 
-               "<b>One Line:</b>", todayTBL$oneLine,
-               "<br/>", "<br/>", sep = " ")
-  
-  HTML(txt)
-})
+  renderUI({
+    # grab table from google sheets
+    tbl <- loadData()
+    # grab table of today's entries
+    todayTBL <- today(tbl)
+    
+    todayTBL$oneLine
+    
+    txt <- paste("<b>Project:</b>", todayTBL$projectName,
+                 "<b>Role:</b>", todayTBL$role, 
+                 "<b>Rating:</b>", todayTBL$rating, 
+                 "<b>One Line:</b>", todayTBL$oneLine,
+                 "<br/>", "<br/>", sep = " ")
+    
+    HTML(txt)
+  })
 }
 
 # create dynamic boxes based on number projects in projectNames
 digestBoxes <- function(tbl) {
-  box(
-    title = tbl$projectName,
-    tags$img(src = paste0("half",tbl$rating,".png")),
-    tbl$rating, tbl$role, tbl$oneLiner
-  )
+  if(nrow(tbl) != 0) {
+    #REMOVE = grab table of today's entries - Assumes only todays are entered
+    box(
+      width = 12,
+      title = tbl$projectName,
+      tags$img(src = paste0("half",tbl$rating,".png")),
+      tbl$rating, tbl$role, tbl$oneLiner
+    )
+  } else return(NULL)
+}
+
+iterateToday <- function(tbl) {
+  # filter just todays values
+  todayTBL <- today(tbl)
+  lapply(projectNames, function(x){
+    filter(todayTBL, projectName == x) %>%
+      digestBoxes()
+  })
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports",
@@ -136,7 +150,7 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "boxes",
-                  digestBoxes(tail(loadData(), n = 1))
+                  iterateToday(loadData())
                 ),
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
@@ -222,7 +236,7 @@ server <- function(input, output, session) {
     ratingPic(input$rating)
   }, deleteFile = FALSE)
   
-  # attempt for digest color rating -----------------------------------
+  # attempt for digest color rating ------------------- Can remove now -----
   output$digestColor <- renderImage({
     tbl <- loadData()
     dColor <- tail(tbl, n = 1)
