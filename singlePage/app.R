@@ -63,7 +63,33 @@ today <- function(gsTBL) {
   gsTBL[isToday(gsTBL$timeStamp),]
 }
 
-# rendering functions for server.R and ui.R
+# selects a color based on the rating
+ratingPic <- function(rating) {
+  if (is.null(rating))
+    return(NULL)
+  
+  if (rating == "Green") {
+    return(list(
+      src = "images/green.png",
+      contentType = "image/png",
+      alt = "Green"
+    ))
+  } else if (rating == "Yellow") {
+    return(list(
+      src = "images/yellow.png",
+      filetype = "image/png",
+      alt = "Yellow"
+    ))
+  } else if (rating == "Red") {
+    return(list(
+      src = "images/red.png",
+      filetype = "image/png",
+      alt = "Red"
+    ))}
+}
+
+##=================== server.R / ui.R functions ==============## 
+# rendering function for digest
 digest <- function() {
 renderUI({
   # grab table from google sheets
@@ -81,6 +107,11 @@ renderUI({
   
   HTML(txt)
 })
+}
+
+# create dynamic boxes based on number projects in projectNames
+digestBoxes <- function(tbl) {
+  box(title = tbl$projectName)
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports",
@@ -178,34 +209,7 @@ server <- function(input, output, session) {
   # rating sends colored circle png based on rating response 
   output$rating <- renderImage({
     # Method for rendering pic without global.R function:
-    if (is.null(input$rating))
-      return(NULL)
-    
-    if (input$rating == "Green") {
-      return(
-        list(
-          src = "images/green.png",
-          contentType = "image/png",
-          alt = "Green"
-        )
-      )
-    } else if (input$rating == "Yellow") {
-      return(
-        list(
-          src = "images/yellow.png",
-          filetype = "image/png",
-          alt = "Yellow"
-        )
-      )
-    } else if (input$rating == "Red") {
-      return(
-        list(
-          src = "images/red.png",
-          filetype = "image/png",
-          alt = "Red"
-        )
-      )
-    }
+    ratingPic(input$rating)
   }, deleteFile = FALSE)
   
   # Display current State of sheet data
