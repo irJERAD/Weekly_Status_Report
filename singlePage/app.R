@@ -155,7 +155,7 @@ body <- dashboardBody(
               tabBox(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
-                  title = "Today",
+                  title = "This Week",
                   iterateProjects(loadData())
                 ),
                 tabPanel(
