@@ -1,0 +1,6 @@
+Most recent by project
+Made after grouped
+byProject <- lapply(projectNames, function(x){filter(todayTBL, projectName == x)})
+
+Most recent groups
+grouped <- group_by(todayTBL, projectName)
