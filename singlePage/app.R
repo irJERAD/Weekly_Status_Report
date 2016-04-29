@@ -112,24 +112,30 @@ digest <- function() {
 
 # create dynamic boxes based on number projects in projectNames
 digestBoxes <- function(tbl) {
-  if(nrow(tbl) != 0) {
-    #REMOVE = grab table of today's entries - Assumes only todays are entered
     box(
       width = 12,
       title = tbl$projectName,
       tags$img(src = paste0("half",tbl$rating,".png")),
-      tbl$rating, tbl$role, tbl$oneLiner
+      tbl$role, tbl$oneLiner
     )
-  } else return(NULL)
 }
 
-iterateToday <- function(tbl) {
+# iterate through roles
+iterateRoles <- function(df) {
+  lapply(roleList, function(x){digestBoxes(x)})
+}
+
+# takes google sheet input, extracts todays values, iterates through each project
+iterateProjects <- function(tbl) {
   # filter just todays values
   todayTBL <- today(tbl)
-  lapply(projectNames, function(x){
-    filter(todayTBL, projectName == x) %>%
-      digestBoxes()
+  # organize by project
+  byProject <- lapply(projectNames, function(x){
+    filter(todayTBL, projectName == x)
   })
+  # remove empty values for each group
+  grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
+  lapply(grouped, function(x) digestBoxes(x))
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports",
@@ -150,7 +156,7 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "boxes",
-                  iterateToday(loadData())
+                  iterateProjects(loadData())
                 ),
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
