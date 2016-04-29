@@ -110,14 +110,25 @@ digest <- function() {
   })
 }
 
-# create dynamic boxes based on number projects in projectNames
+# create dynamic boxes based on project names. tbl is entire sheet
 digestBoxes <- function(tbl) {
+  # filter just todays values
+  todayTBL <- today(tbl)
+  HMH <- todayTBL[todayTBL$projectName == "HMH",]
+  if(dim(HMH[HMH$role == "Project Manager",])[1] == 0) {
+    box(
+      width = 12, title = "HMH",
+      "Project Manager has not submitted their Weekly Status Report Yet"
+    )
+  } else{
+    tbl <- HMH[HMH$role == "Project Manager",]
     box(
       width = 12,
       title = tbl$projectName,
       tags$img(src = paste0("half",tbl$rating,".png")),
       tbl$role, tbl$oneLiner
     )
+  }
 }
 
 # iterate through roles
@@ -156,7 +167,7 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "This Week",
-                  iterateProjects(loadData())
+                  digestBoxes(loadData())
                 ),
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
