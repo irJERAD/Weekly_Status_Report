@@ -23,7 +23,7 @@ projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly St
 ## Global Functions
 
 # name of google sheet being used
-table <- "practiceWSR"
+table <- "weeklyStatusReportData"
 
 # a function to append data to the bottom row of google sheet 'sheet'
 saveData <- function(data) {
@@ -155,7 +155,7 @@ body <- dashboardBody(
               tabBox(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
-                  title = "boxes",
+                  title = "Today",
                   iterateProjects(loadData())
                 ),
                 tabPanel(
