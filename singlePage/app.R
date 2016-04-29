@@ -23,7 +23,7 @@ projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly St
 ## Global Functions
 
 # name of google sheet being used
-table <- "weeklyStatusReportData"
+table <- "practiceWSR"
 
 # a function to append data to the bottom row of google sheet 'sheet'
 saveData <- function(data) {
@@ -262,7 +262,8 @@ server <- function(input, output, session) {
     
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
-    data = c(date, input$projectName, input$role,input$rating, input$summary, input$oneLiner)
+    data = c(date, input$projectName, input$role,input$rating,
+             input$summary, input$oneLiner, gs_user()$displayName)
     # update google sheet
     saveData(data)
     
