@@ -37,7 +37,7 @@ projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly St
 ## Global Functions
 
 # name of google sheet being used
-## Practice = 'practiceWST' ; real one = 'weeklyStatusReportData'
+## Practice = 'practiceWSR' ; real one = 'weeklyStatusReportData'
 table <- "weeklyStatusReportData"
 
 # a function to append data to the bottom row of google sheet 'sheet'
@@ -105,6 +105,32 @@ ratingPic <- function(rating) {
 }
 
 ##=================== server.R / ui.R functions ==============## 
+pasteDigest <- function(x) {
+  paste(
+    tags$img(src = paste0("half", x['rating'], ".png")),
+    "<b>Project:</b>", x['projectName'],
+    "<b>Role:</b>", x['role'], 
+    "<b>Rating:</b>", x['rating'], 
+    "<b>One Line:</b>", x['oneLiner'],
+    "<br>", "<br/>", sep = " "
+  )}
+pasteDigest2 <- function(x) {
+  ## -- poorly written, replace todayTBL with variable x being passed through
+  # grab table from google sheets
+  tbl <- loadData()
+  # grab table of today's entries
+  todayTBL <- today(tbl)
+  picLocation <- tags$img(src = paste0("half", todayTBL$rating, ".png"))
+  paste(
+    picLocation,
+    "<b>Project:</b>", todayTBL$projectName, 
+    "<b>One Line:</b>", todayTBL$oneLiner,
+    br(),
+    "<b>Role:</b>", todayTBL$role, 
+    "<b>Rating:</b>", todayTBL$rating, 
+    "<br/>", "<br/>", sep = " ")
+}
+
 # rendering function for digest
 digest <- function() {
   renderUI({
@@ -116,11 +142,15 @@ digest <- function() {
     todayTBL$oneLine
     
     txt <- paste(tags$img(src = paste0("half", todayTBL$rating, ".png")),
-                 "<b>Project:</b>", todayTBL$projectName,
+                 "<b>Project:</b>", todayTBL$projectName, 
+                 "<b>One Line:</b>", todayTBL$oneLiner,
+                 br(),
                  "<b>Role:</b>", todayTBL$role, 
                  "<b>Rating:</b>", todayTBL$rating, 
-                 "<b>One Line:</b>", todayTBL$oneLine,
                  "<br/>", "<br/>", sep = " ")
+    
+    txt2 <- pasteDigest(todayTBL)
+    txt3 <- sapply(split(todayTBL, todayTBL$projectName), function(x) pasteDigest2(x))
     
     markUp2 <- adply(todayTBL, 1, function(x) {paste(
                                   tags$img(src = paste0("half", x['rating'], ".png")),
@@ -139,7 +169,12 @@ digest <- function() {
                     "<br/>", "<br/>", sep = " "
                     )
     
-    HTML(txt)
+    # data frame in array out, also works with "projectName" to split up by projectName variable
+    ## TODO: look into using **ply function with "projectName 
+    ## to split things up and replace apply functions
+    markupArray <- daply(todayTBL, 2, function(x) pasteDigest(x))
+    
+    HTML(txt3)
   })
 }
 
@@ -170,16 +205,20 @@ iterateRoles <- function(df) {
 }
 
 # takes google sheet input, extracts todays values, iterates through each project
-iterateProjects <- function(tbl) {
-  # filter just todays values
-  todayTBL <- today(tbl)
-  # organize by project
-  byProject <- lapply(projectNames, function(x){
-    filter(todayTBL, projectName == x)
+weeklyView <- function() {
+  renderUI({
+    tbl <- loadData()
+    # filter just todays values
+    todayTBL <- today(tbl)
+    # organize by project
+    byProject <- lapply(projectNames, function(x){
+      filter(todayTBL, projectName == x)
+    })
+    # remove empty values for each group
+    grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
+    view <- lapply(grouped, function(x) teamBoxes(x))
+    view
   })
-  # remove empty values for each group
-  grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
-  lapply(grouped, function(x) teamBoxes(x))
 }
 
 ## --- --- Another Attempt at Digest Boxes --- --- ##
@@ -202,17 +241,59 @@ teamBoxes <- function (aTodayList) {
   box(
     width = 12,
     title = aTodayList$projectName[[1]],
-    if (sum(aTodayList$role == "Account Manager")) {
-      AM <- aTodayList[aTodayList$role == "Account Manager", ]
-      paste(tags$img(src = paste0("half", AM$rating, ".png")),
-            AM$role, AM$oneLiner
-      )
-    } else {
-      paste("The Account Manager of",
-            aTodayList$projectName[[1]],
-            "has not submitted their report yet"
-      )
-    }
+    HTML(
+      if (sum(aTodayList$role == "Account Manager")) {
+        AM <- aTodayList[aTodayList$role == "Account Manager", ]
+        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+              "<b>", AM$role, ":</b>", AM$user, "<br>",
+              "<b>Overview:</b>", AM$oneLiner, "<br>"
+        )
+      } else {
+        paste("<b style='color:red;'>The Account Manager of",
+              aTodayList$projectName[[1]], "</b>",
+              "<b>has not submitted their report yet</b>"
+        )
+      },
+      "<br>",
+      if (sum(aTodayList$role == "Project Manager")) {
+        PM <- aTodayList[aTodayList$role == "Project Manager", ]
+        paste(tags$img(src = paste0("half", PM$rating, ".png")),
+              "<b>", PM$role, ":</b>", PM$user, "<br>",
+              "<b>Overview:</b>", PM$oneLiner, "<br>"
+        )
+      } else {
+        paste("<b style='color:red;'>The Project Manager of",
+              aTodayList$projectName[[1]], "</b>",
+              "<b>has not submitted their report yet</b>"
+        )
+      },
+      "<br>",
+      if (sum(aTodayList$role == "Technical Lead")) {
+        TL <- aTodayList[aTodayList$role == "Technical Lead", ]
+        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+              "<b>", TL$role, ":</b>", TL$user, "<br>",
+              "<b>Overview:</b>", TL$oneLiner, "<br>"
+        )
+      } else {
+        paste("<b style='color:red;'>The Technical Lead of",
+              aTodayList$projectName[[1]], "</b>",
+              "<b>has not submitted their report yet</b>"
+        )
+      },
+      "<br>",
+      if (sum(aTodayList$role == "Quality Assurance")) {
+        QA <- aTodayList[aTodayList$role == "Quality Assurance", ]
+        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+              "<b>", QA$role, ":</b>", QA$user, "<br>",
+              "<b>Overview:</b>", QA$oneLiner, "<br>"
+        )
+      } else {
+        paste("<b style='color:red;'>The Quality Assurance of",
+              aTodayList$projectName[[1]], "</b>",
+              "<b>has not submitted their report yet</b>"
+        )
+      }
+    )
   )
   
 }
@@ -235,7 +316,8 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "This Week",
-                  iterateProjects(loadData())
+                  htmlOutput("weekly")
+                  #iterateProjects(loadData())
                 ),
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
@@ -315,6 +397,9 @@ server <- function(input, output, session) {
   # get digest info from googlesheet
   output$gDigest <- digest()
   
+  # get Weekly info
+  output$weekly <- weeklyView()
+  
   # rating sends colored circle png based on rating response 
   output$ratingImg <- renderImage({
     # render rating color pic with global.R function
@@ -353,6 +438,8 @@ server <- function(input, output, session) {
     
     ## TODO place renderUI with abstracted Project digest into HTML for auto update
     output$gDigest <- digest()
+    ## Do the same for weekly view
+    output$weekly <- weeklyView()
   })
   
   ## Get auth code from return URL

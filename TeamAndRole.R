@@ -13,6 +13,11 @@ todayData <- function() {
   todayTBL <- today(rawData)
 }
 
+####### TODO: Try ddply() ############
+## --- --- Look at ddply() --- --- ##
+# --- --- --- "For each subset of a data frame, apply function --- --- #
+# --- --- --- --- then combine results into a data frame' --- --- --- --- #
+
 # subset an individual team from Today's data
 HMH <- todayTBL[todayTBL$projectName == "HMH",]
 
