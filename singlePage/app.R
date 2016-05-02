@@ -1,11 +1,25 @@
 # for a multifile system with a global file use below line
 #source('global.R', local = TRUE)
 
+## TODO Style Guide: ---------------------------------- ##
+# Based on Hadley Wickham style guide in Advanced R
+## variables are lower case with an underscore to seperate words
+# roleList should be role_list; projectName ==> project_name
+# files appear to have the same naming schema
+## function names have initial capital letter and are written in CamelCase
+# saveData() => SaveData(); loadData() => LoadData(); digestBoxes => DigestBoxes()
+# use cmd-f to find and replace so you can change the function names
+# and change their spelling where they are used at the same time
+
+
 library(shiny)
 library(shinydashboard)
 library(googlesheets)
 library(DT)
 suppressMessages(library(dplyr))
+
+# only for apply()
+library(plyr)
 
 ## Global
 
@@ -23,7 +37,8 @@ projectNames <- list("HMH", "LAC", "SVB", "Empower", "Ebay", "Geico", "Weekly St
 ## Global Functions
 
 # name of google sheet being used
-table <- "practiceWSR"
+## Practice = 'practiceWST' ; real one = 'weeklyStatusReportData'
+table <- "weeklyStatusReportData"
 
 # a function to append data to the bottom row of google sheet 'sheet'
 saveData <- function(data) {
@@ -100,11 +115,29 @@ digest <- function() {
     
     todayTBL$oneLine
     
-    txt <- paste("<b>Project:</b>", todayTBL$projectName,
+    txt <- paste(tags$img(src = paste0("half", todayTBL$rating, ".png")),
+                 "<b>Project:</b>", todayTBL$projectName,
                  "<b>Role:</b>", todayTBL$role, 
                  "<b>Rating:</b>", todayTBL$rating, 
                  "<b>One Line:</b>", todayTBL$oneLine,
                  "<br/>", "<br/>", sep = " ")
+    
+    markUp2 <- adply(todayTBL, 1, function(x) {paste(
+                                  tags$img(src = paste0("half", x['rating'], ".png")),
+                                 "<b>Project:</b>", x['projectName'],
+                                 "<b>Role:</b>", x['role'], 
+                                 "<b>Rating:</b>", x['rating'], 
+                                 "<b>One Line:</b>", x['oneLiner'],
+                                 "<br/>", "<br/>", sep = " "
+                                 )}
+           )
+    markUp <- paste(tags$img(src = paste0("half", todayTBL$rating, ".png")),
+                    "<b>Project:</b>", todayTBL$projectName,
+                    "<b>Role:</b>", todayTBL$role, 
+                    "<b>Rating:</b>", todayTBL$rating, 
+                    "<b>One Line:</b>", todayTBL$oneLiner,
+                    "<br/>", "<br/>", sep = " "
+                    )
     
     HTML(txt)
   })
@@ -146,7 +179,42 @@ iterateProjects <- function(tbl) {
   })
   # remove empty values for each group
   grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
-  lapply(grouped, function(x) digestBoxes(x))
+  lapply(grouped, function(x) teamBoxes(x))
+}
+
+## --- --- Another Attempt at Digest Boxes --- --- ##
+teamBoxes <- function (aTodayList) {
+  # -- ** maybe function ** ----- ##
+  # before stripping empty lists from todayList, we could use dimensions
+  # to inform the digest that "No one from this team has submitted their report yet
+  # --- can't do, bc can't get project name from empty list with dim() = 0 --- #
+  
+  # if (dim(aTodayList)[1] < 1) {
+  #   box(
+  #     wdith = 12, title = CANT FIND THIS NAME
+  #   )
+  # }
+  
+  # since we can't get a name from an empty list
+  # assume we are working with the reduce list of projects that have some or all
+  # submission from their roles
+  
+  box(
+    width = 12,
+    title = aTodayList$projectName[[1]],
+    if (sum(aTodayList$role == "Account Manager")) {
+      AM <- aTodayList[aTodayList$role == "Account Manager", ]
+      paste(tags$img(src = paste0("half", AM$rating, ".png")),
+            AM$role, AM$oneLiner
+      )
+    } else {
+      paste("The Account Manager of",
+            aTodayList$projectName[[1]],
+            "has not submitted their report yet"
+      )
+    }
+  )
+  
 }
 
 header <- dashboardHeader(title = "Weekly Status Reports",
@@ -167,7 +235,7 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "This Week",
-                  digestBoxes(loadData())
+                  iterateProjects(loadData())
                 ),
                 tabPanel(
                   # this method requires browser to be refreshed for newer entries
