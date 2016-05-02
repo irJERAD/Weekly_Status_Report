@@ -270,7 +270,7 @@ teamBoxes <- function (aTodayList) {
       "<br>",
       if (sum(aTodayList$role == "Technical Lead")) {
         TL <- aTodayList[aTodayList$role == "Technical Lead", ]
-        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+        paste(tags$img(src = paste0("half", TL$rating, ".png")),
               "<b>", TL$role, ":</b>", TL$user, "<br>",
               "<b>Overview:</b>", TL$oneLiner, "<br>"
         )
@@ -283,7 +283,7 @@ teamBoxes <- function (aTodayList) {
       "<br>",
       if (sum(aTodayList$role == "Quality Assurance")) {
         QA <- aTodayList[aTodayList$role == "Quality Assurance", ]
-        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+        paste(tags$img(src = paste0("half", QA$rating, ".png")),
               "<b>", QA$role, ":</b>", QA$user, "<br>",
               "<b>Overview:</b>", QA$oneLiner, "<br>"
         )
