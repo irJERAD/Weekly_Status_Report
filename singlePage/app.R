@@ -24,9 +24,10 @@ library(plyr)
 ## Global
 
 ## Global Options
-options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
-options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekly-Status-Report/")
-options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
+# commenting bc googlesheet documentation says to place this in the server.R file
+# options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
+# options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekly-Status-Report/")
+# options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
 ## Global Variables
 
 # define roles
@@ -107,29 +108,20 @@ ratingPic <- function(rating) {
 ##=================== server.R / ui.R functions ==============## 
 pasteDigest <- function(x) {
   paste(
-    tags$img(src = paste0("half", x['rating'], ".png")),
-    "<b>Project:</b>", x['projectName'],
-    "<b>Role:</b>", x['role'], 
-    "<b>Rating:</b>", x['rating'], 
-    "<b>One Line:</b>", x['oneLiner'],
-    "<br>", "<br/>", sep = " "
+    # paste desired digest info
+    "<pre style=\"background-color:", x$rating,"\">",
+    "<b>Project:</b>", x$projectName,
+    "<b>Role:</b>", x$role,
+    "<b>Rating:</b>", x$rating,
+    "<b>One Line:</b>", x$oneLiner,
+    "</br>",
+    # link to image in www folder by <img src='fileName.jpg' />
+    # paste0("<img src='half", x$rating, ".png' />"),
+    "<b>Summary:</b>", x$summary,
+    "</pre>",
+    "<hr>", sep = " "
   )}
-pasteDigest2 <- function(x) {
-  ## -- poorly written, replace todayTBL with variable x being passed through
-  # grab table from google sheets
-  tbl <- loadData()
-  # grab table of today's entries
-  todayTBL <- today(tbl)
-  picLocation <- tags$img(src = paste0("half", todayTBL$rating, ".png"))
-  paste(
-    picLocation,
-    "<b>Project:</b>", todayTBL$projectName, 
-    "<b>One Line:</b>", todayTBL$oneLiner,
-    br(),
-    "<b>Role:</b>", todayTBL$role, 
-    "<b>Rating:</b>", todayTBL$rating, 
-    "<br/>", "<br/>", sep = " ")
-}
+
 
 # rendering function for digest
 digest <- function() {
@@ -139,42 +131,10 @@ digest <- function() {
     # grab table of today's entries
     todayTBL <- today(tbl)
     
-    todayTBL$oneLine
+    # send todayTBL data frame and return an array with HTML text for team summaries
+    markupArray <- daply(todayTBL, 1, function(x) pasteDigest(x))
     
-    txt <- paste(tags$img(src = paste0("half", todayTBL$rating, ".png")),
-                 "<b>Project:</b>", todayTBL$projectName, 
-                 "<b>One Line:</b>", todayTBL$oneLiner,
-                 br(),
-                 "<b>Role:</b>", todayTBL$role, 
-                 "<b>Rating:</b>", todayTBL$rating, 
-                 "<br/>", "<br/>", sep = " ")
-    
-    txt2 <- pasteDigest(todayTBL)
-    txt3 <- sapply(split(todayTBL, todayTBL$projectName), function(x) pasteDigest2(x))
-    
-    markUp2 <- adply(todayTBL, 1, function(x) {paste(
-                                  tags$img(src = paste0("half", x['rating'], ".png")),
-                                 "<b>Project:</b>", x['projectName'],
-                                 "<b>Role:</b>", x['role'], 
-                                 "<b>Rating:</b>", x['rating'], 
-                                 "<b>One Line:</b>", x['oneLiner'],
-                                 "<br/>", "<br/>", sep = " "
-                                 )}
-           )
-    markUp <- paste(tags$img(src = paste0("half", todayTBL$rating, ".png")),
-                    "<b>Project:</b>", todayTBL$projectName,
-                    "<b>Role:</b>", todayTBL$role, 
-                    "<b>Rating:</b>", todayTBL$rating, 
-                    "<b>One Line:</b>", todayTBL$oneLiner,
-                    "<br/>", "<br/>", sep = " "
-                    )
-    
-    # data frame in array out, also works with "projectName" to split up by projectName variable
-    ## TODO: look into using **ply function with "projectName 
-    ## to split things up and replace apply functions
-    markupArray <- daply(todayTBL, 2, function(x) pasteDigest(x))
-    
-    HTML(txt3)
+    HTML(markupArray)
   })
 }
 
@@ -204,23 +164,6 @@ iterateRoles <- function(df) {
   lapply(roleList, function(x){digestBoxes(x)})
 }
 
-# takes google sheet input, extracts todays values, iterates through each project
-weeklyView <- function() {
-  renderUI({
-    tbl <- loadData()
-    # filter just todays values
-    todayTBL <- today(tbl)
-    # organize by project
-    byProject <- lapply(projectNames, function(x){
-      filter(todayTBL, projectName == x)
-    })
-    # remove empty values for each group
-    grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
-    view <- lapply(grouped, function(x) teamBoxes(x))
-    view
-  })
-}
-
 ## --- --- Another Attempt at Digest Boxes --- --- ##
 teamBoxes <- function (aTodayList) {
   # -- ** maybe function ** ----- ##
@@ -230,7 +173,7 @@ teamBoxes <- function (aTodayList) {
   
   # if (dim(aTodayList)[1] < 1) {
   #   box(
-  #     wdith = 12, title = CANT FIND THIS NAME
+  #     wdith = 12, title = CANT FIND THIS Project
   #   )
   # }
   
@@ -298,6 +241,23 @@ teamBoxes <- function (aTodayList) {
   
 }
 
+# takes google sheet input, extracts todays values, iterates through each project
+weeklyView <- function() {
+  renderUI({
+    tbl <- loadData()
+    # filter just todays values
+    todayTBL <- today(tbl)
+    # organize by project
+    byProject <- lapply(projectNames, function(x){
+      filter(todayTBL, projectName == x)
+    })
+    # remove empty values for each group
+    grouped <- byProject[sapply(byProject, function(y) {dim(y)[1] > 0})]
+    view <- lapply(grouped, function(x) teamBoxes(x))
+    view
+  })
+}
+
 header <- dashboardHeader(title = "Weekly Status Reports",
                           uiOutput("loginButton")
 )
@@ -317,13 +277,10 @@ body <- dashboardBody(
                 tabPanel(
                   title = "This Week",
                   htmlOutput("weekly")
-                  #iterateProjects(loadData())
                 ),
                 tabPanel(
-                  # this method requires browser to be refreshed for newer entries
-                  title = "Digests", htmlOutput("gDigest"),
-                  br(), "hello",
-                  imageOutput("digestColor", height = "auto")
+                  title = "Digests",
+                  htmlOutput("gDigest")
                 ),
                 tabPanel(
                   title = "Weekly Status Report OverView", 
@@ -394,6 +351,11 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output, session) {
   
+  ## setting googlesheet OAuth options
+  options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
+  options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekly-Status-Report/")
+  options("googlesheets.webapp.client_id" = "575772486822-gfrlu7mocg3roq58rtgrsp8taq1tn0hd.apps.googleusercontent.com")
+  
   # get digest info from googlesheet
   output$gDigest <- digest()
   
@@ -404,13 +366,6 @@ server <- function(input, output, session) {
   output$ratingImg <- renderImage({
     # render rating color pic with global.R function
     ratingPic(input$rating)
-  }, deleteFile = FALSE)
-  
-  # attempt for digest color rating ------------------- Can remove now -----
-  output$digestColor <- renderImage({
-    tbl <- loadData()
-    dColor <- tail(tbl, n = 1)
-    ratingPic(dColor$rating)
   }, deleteFile = FALSE)
   
   # Display current State of sheet data
