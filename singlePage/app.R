@@ -187,53 +187,65 @@ teamBoxes <- function (aTodayList) {
     HTML(
       if (sum(aTodayList$role == "Account Manager")) {
         AM <- aTodayList[aTodayList$role == "Account Manager", ]
-        paste(tags$img(src = paste0("half", AM$rating, ".png")),
+        paste("<div class='col-sm-2'>",
+              paste0("<img src='half", AM$rating, ".png' />"),
+              "</div>", "<div class='col-sm-10'>",
               "<b>", AM$role, ":</b>", AM$user, "<br>",
-              "<b>Overview:</b>", AM$oneLiner, "<br>"
+              "<b>Overview:</b>", AM$oneLiner, "<br>", "</br>",
+              "</div>"
         )
       } else {
         paste("<b style='color:red;'>The Account Manager of",
               aTodayList$projectName[[1]], "</b>",
-              "<b>has not submitted their report yet</b>"
+              "<b>has not submitted their report yet</b>", "<br>"
         )
       },
       "<br>",
       if (sum(aTodayList$role == "Project Manager")) {
         PM <- aTodayList[aTodayList$role == "Project Manager", ]
-        paste(tags$img(src = paste0("half", PM$rating, ".png")),
+        paste("<div class='col-sm-2'>",
+              paste0("<img src='half", PM$rating, ".png' />"),
+              "</div>", "<div class='col-sm-10'>",
               "<b>", PM$role, ":</b>", PM$user, "<br>",
-              "<b>Overview:</b>", PM$oneLiner, "<br>"
+              "<b>Overview:</b>", PM$oneLiner, "<br>", "</br>",
+              "</div>"
         )
       } else {
         paste("<b style='color:red;'>The Project Manager of",
               aTodayList$projectName[[1]], "</b>",
-              "<b>has not submitted their report yet</b>"
+              "<b>has not submitted their report yet</b>", "<br>"
         )
       },
       "<br>",
       if (sum(aTodayList$role == "Technical Lead")) {
         TL <- aTodayList[aTodayList$role == "Technical Lead", ]
-        paste(tags$img(src = paste0("half", TL$rating, ".png")),
+        paste("<div class='col-sm-2'>",
+              paste0("<img src='half", TL$rating, ".png' />"),
+              "</div>", "<div class='col-sm-10'>",
               "<b>", TL$role, ":</b>", TL$user, "<br>",
-              "<b>Overview:</b>", TL$oneLiner, "<br>"
+              "<b>Overview:</b>", TL$oneLiner, "<br>", "</br>",
+              "</div>"
         )
       } else {
         paste("<b style='color:red;'>The Technical Lead of",
               aTodayList$projectName[[1]], "</b>",
-              "<b>has not submitted their report yet</b>"
+              "<b>has not submitted their report yet</b>", "<br>"
         )
       },
       "<br>",
       if (sum(aTodayList$role == "Quality Assurance")) {
         QA <- aTodayList[aTodayList$role == "Quality Assurance", ]
-        paste(tags$img(src = paste0("half", QA$rating, ".png")),
+        paste("<div class='col-sm-2'>",
+              paste0("<img src='half", QA$rating, ".png' />"),
+              "</div>", "<div class='col-sm-10'>",
               "<b>", QA$role, ":</b>", QA$user, "<br>",
-              "<b>Overview:</b>", QA$oneLiner, "<br>"
+              "<b>Overview:</b>", QA$oneLiner, "<br>", "</br>",
+              "</div>"
         )
       } else {
         paste("<b style='color:red;'>The Quality Assurance of",
               aTodayList$projectName[[1]], "</b>",
-              "<b>has not submitted their report yet</b>"
+              "<b>has not submitted their report yet</b>", "<br>"
         )
       }
     )
