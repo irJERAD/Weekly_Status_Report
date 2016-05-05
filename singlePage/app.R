@@ -380,11 +380,10 @@ server <- function(input, output, session) {
   
   ## disable Submit button unless required fields are satisfied
   observe({
-    if (is.null(c(input$oneLiner, input$summary)) || input$oneLiner == "" || input$summary == "") {
-      shinyjs::disable("submit")
-    } else {
-      shinyjs::enable("submit")
-    }
+    toggleState("submit",
+                !is.null(c(input$oneLiner, input$summary)) &&
+                  input$oneLiner != "" &&
+                  input$summary != "")
   })
   
   ## Get auth code from return URL
