@@ -331,6 +331,10 @@ ui <- dashboardPage(header, sidebar, body, skin = "blue")
 
 server <- function(input, output, session) {
   
+  ## pop up
+  observe({
+    shinyjs::info("Please be sure to authenticate the App with your Google account before submitting this form")
+  })
   ## setting googlesheet OAuth options
   options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
   options("googlesheets.webapp.redirect_uri" = "https://irjerad.shinyapps.io/Weekly-Status-Report/")
@@ -376,6 +380,12 @@ server <- function(input, output, session) {
     output$gDigest <- digest()
     ## Do the same for weekly view
     output$weekly <- weeklyView()
+    
+  })
+  
+  ## reset form fields
+  observeEvent(input$submit, {
+    shinyjs::reset("myapp")
   })
   
   ## disable Submit button unless required fields are satisfied
