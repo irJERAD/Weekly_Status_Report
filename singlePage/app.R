@@ -1,6 +1,9 @@
 # for a multifile system with a global file use below line
 #source('global.R', local = TRUE)
 
+## reset .httr_oauth from current directory to force google login every refresh
+# token <- gs_auth(new_user = TRUE)
+
 ## TODO Style Guide: ---------------------------------- ##
 # Based on Hadley Wickham style guide in Advanced R
 ## variables are lower case with an underscore to seperate words
@@ -17,6 +20,7 @@ library(shinydashboard)
 library(googlesheets)
 library(DT)
 suppressMessages(library(dplyr))
+library(shinyjs)
 
 # only for apply()
 library(plyr)
@@ -281,6 +285,8 @@ sidebar <- dashboardSidebar(
   )
 )
 body <- dashboardBody(
+  # enable javascript in UI
+  shinyjs::useShinyjs(),
   tabItems(
     tabItem("teamRatings",
             fluidRow(
@@ -339,7 +345,8 @@ body <- dashboardBody(
                   fluidRow(
                     column(width = 12, offset = 0,
                            textInput(inputId = "oneLiner", width = "100%",
-                                     label = "One Liner:", placeholder = "One line that says it all...")
+                                     label = "One Liner:",
+                                     placeholder = "One line that says it all...")
                     )
                   )
               )
@@ -391,6 +398,7 @@ server <- function(input, output, session) {
   # Add new row based on user input after pressing submit
   observeEvent(input$submit, {
     
+    
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
     data = c(date, input$projectName, input$role,input$rating,
@@ -407,6 +415,15 @@ server <- function(input, output, session) {
     output$gDigest <- digest()
     ## Do the same for weekly view
     output$weekly <- weeklyView()
+  })
+  
+  ## disable Submit button unless required fields are satisfied
+  observe({
+    if (is.null(c(input$oneLiner, input$summary)) || input$oneLiner == "" || input$summary == "") {
+      shinyjs::disable("submit")
+    } else {
+      shinyjs::enable("submit")
+    }
   })
   
   ## Get auth code from return URL
