@@ -142,48 +142,8 @@ digest <- function() {
   })
 }
 
-# create dynamic boxes based on project names. tbl is entire sheet
-digestBoxes <- function(tbl) {
-  # filter just todays values
-  todayTBL <- today(tbl)
-  HMH <- todayTBL[todayTBL$projectName == "HMH",]
-  if(dim(HMH[HMH$role == "Project Manager",])[1] == 0) {
-    box(
-      width = 12, title = "HMH",
-      "Project Manager has not submitted their Weekly Status Report Yet"
-    )
-  } else{
-    tbl <- HMH[HMH$role == "Project Manager",]
-    box(
-      width = 12,
-      title = tbl$projectName,
-      tags$img(src = paste0("half",tbl$rating,".png")),
-      tbl$role, tbl$oneLiner
-    )
-  }
-}
-
-# iterate through roles
-iterateRoles <- function(df) {
-  lapply(roleList, function(x){digestBoxes(x)})
-}
-
-## --- --- Another Attempt at Digest Boxes --- --- ##
+## --- Digest boxes organized by team --- ##
 teamBoxes <- function (aTodayList) {
-  # -- ** maybe function ** ----- ##
-  # before stripping empty lists from todayList, we could use dimensions
-  # to inform the digest that "No one from this team has submitted their report yet
-  # --- can't do, bc can't get project name from empty list with dim() = 0 --- #
-  
-  # if (dim(aTodayList)[1] < 1) {
-  #   box(
-  #     wdith = 12, title = CANT FIND THIS Project
-  #   )
-  # }
-  
-  # since we can't get a name from an empty list
-  # assume we are working with the reduce list of projects that have some or all
-  # submission from their roles
   
   box(
     width = 12,
@@ -279,11 +239,12 @@ header <- dashboardHeader(title = "Weekly Status Reports",
 )
 sidebar <- dashboardSidebar(
   sidebarMenu(
-    menuItem("Team Ratings", tabName = "teamRatings", icon = icon("group")),
     menuItem("Input Your Rating", tabName = "inputRating", icon = icon("edit")),
+    menuItem("Team Ratings", tabName = "teamRatings", icon = icon("group")),
     menuItem("Raw Data", tabName = "rawData", icon = icon("table"))
   )
 )
+
 body <- dashboardBody(
   # enable javascript in UI
   shinyjs::useShinyjs(),
