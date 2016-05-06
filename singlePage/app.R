@@ -315,7 +315,7 @@ body <- dashboardBody(
             # Text input for project summary
             fluidRow(
               box(title = "Project Summary", width = 12,
-                  tags$textarea(id="summary", rows=8, cols="110",
+                  tags$textarea(id="summary", rows=8, cols="100%",
                                 placeholder = "This week in our project..."),
                   actionButton(inputId = "submit", label = "Submit")
               )
