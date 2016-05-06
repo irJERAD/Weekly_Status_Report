@@ -281,45 +281,52 @@ body <- dashboardBody(
             )
     ),
     tabItem("inputRating",
-            fluidRow(
-              box(title = "Project Status", width = 12,
-                  # User input for Project Name and Date
-                  column(width = 4,
-                         selectInput(inputId = "projectName", label = "Project Name:",
-                                     choices = projectNames),
-                         dateInput(inputId = "date", label = "Date:", format = "m-d-yyyy")
-                  ),
-                  # User input for Role and Rating color
-                  column(width = 4,
-                         selectInput(inputId = "role", label = "Your Role:", 
-                                     choices = roleList
-                         ),
-                         selectInput(inputId = "rating", label = "Your Rating:", 
-                                     choices = list("Green",
-                                                    "Yellow",
-                                                    "Red")
-                         )
-                  ),
-                  # Render Color circle image for rating
-                  column(width = 2, offset = 1,
-                         imageOutput("ratingImg", height = "auto")
-                  ),
-                  fluidRow(
-                    column(width = 12, offset = 0,
-                           textInput(inputId = "oneLiner", width = "100%",
-                                     label = "One Liner:",
-                                     placeholder = "One line that says it all...")
-                    )
+            # label form for reset functionality
+            div(id = "form",
+                fluidRow(
+                  box(title = "Project Status", width = 12,
+                      # User input for Project Name and Date
+                      column(width = 4,
+                             selectInput(inputId = "projectName", label = "Project Name:",
+                                         choices = projectNames),
+                             dateInput(inputId = "date", label = "Date:", format = "m-d-yyyy")
+                      ),
+                      # User input for Role and Rating color
+                      column(width = 4,
+                             selectInput(inputId = "role", label = "Your Role:", 
+                                         choices = roleList
+                             ),
+                             selectInput(inputId = "rating", label = "Your Rating:", 
+                                         choices = list("Green",
+                                                        "Yellow",
+                                                        "Red")
+                             )
+                      ),
+                      # Render Color circle image for rating
+                      column(width = 2, offset = 1,
+                             imageOutput("ratingImg", height = "auto")
+                      ),
+                      fluidRow(
+                        column(width = 12, offset = 0,
+                               textInput(inputId = "oneLiner", width = "100%",
+                                         label = "One Liner:",
+                                         placeholder = "One line that says it all...")
+                        )
+                      )
                   )
-              )
-            ),
-            # Text input for project summary
-            fluidRow(
-              box(title = "Project Summary", width = 12,
-                  tags$textarea(id="summary", rows=8, cols="100%",
-                                placeholder = "This week in our project..."),
-                  actionButton(inputId = "submit", label = "Submit")
-              )
+                ),
+                # Text input for project summary
+                fluidRow(
+                  box(title = "Project Summary", width = 12,
+                      div(id = "summary1",
+                          # use tag style width = 100% for mobile responsiveness
+                          tags$style(type="text/css", "textarea {width:100%}"),
+                          tags$textarea(id="summary", rows=8, cols="100%",
+                                        placeholder = "This week in our project...")
+                      ),
+                      actionButton(inputId = "submit", label = "Submit")
+                  )
+                )
             )
     ),
     tabItem("rawData",
@@ -371,7 +378,6 @@ server <- function(input, output, session) {
   # Add new row based on user input after pressing submit
   observeEvent(input$submit, {
     
-    
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
     data = c(date, input$projectName, input$role,input$rating,
@@ -384,16 +390,17 @@ server <- function(input, output, session) {
     # update raw data view
     output$WSRtbl <- renderDataTable(tbl)
     
-    ## TODO place renderUI with abstracted Project digest into HTML for auto update
+    # Rerender gDigest each time new input is created
     output$gDigest <- digest()
-    ## Do the same for weekly view
+    ## Do the same for weekly and weekly2 view
     output$weekly <- weeklyView()
+    output$weekly2 <- weeklyView()
     
   })
   
   ## reset form fields
   observeEvent(input$submit, {
-    shinyjs::reset("myapp")
+    shinyjs::reset("form")
   })
   
   ## disable Submit button unless required fields are satisfied
