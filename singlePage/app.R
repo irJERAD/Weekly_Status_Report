@@ -240,6 +240,7 @@ header <- dashboardHeader(title = "Weekly Status Reports",
 sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("Input Your Rating", tabName = "inputRating", icon = icon("edit")),
+    menuItem("This Week", tabName = "thisWeek", icon = icon("group")),
     menuItem("Team Ratings", tabName = "teamRatings", icon = icon("group")),
     menuItem("Raw Data", tabName = "rawData", icon = icon("table"))
   )
@@ -255,7 +256,7 @@ body <- dashboardBody(
                 id = "teamDigests", title = "Team Digests", width = 12,
                 tabPanel(
                   title = "This Week",
-                  htmlOutput("weekly")
+                  uiOutput("weekly")
                 ),
                 tabPanel(
                   title = "Digests",
@@ -324,6 +325,10 @@ body <- dashboardBody(
     tabItem("rawData",
             # show practice weekly status report
             DT::dataTableOutput("WSRtbl")
+    ),
+    tabItem("thisWeek",
+            # show this weeks submissions by project
+            uiOutput("weekly2")
     )
   )
 )
@@ -345,6 +350,9 @@ server <- function(input, output, session) {
   
   # get Weekly info
   output$weekly <- weeklyView()
+  
+  # make unique name for copy
+  output$weekly2 <- weeklyView()
   
   # rating sends colored circle png based on rating response 
   output$ratingImg <- renderImage({
