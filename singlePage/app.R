@@ -333,7 +333,7 @@ server <- function(input, output, session) {
   
   ## pop up
   observe({
-    shinyjs::info("Please be sure to authenticate the App with your Google account before submitting this form")
+    shinyjs::info("Please be sure to authorize the App with your Google account before submitting this form")
   })
   ## setting googlesheet OAuth options
   options("googlesheets.webapp.client_secret" = "9CxTmfVIljTHSmjz8IfjoOIx")
