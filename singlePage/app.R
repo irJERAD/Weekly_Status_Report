@@ -89,7 +89,7 @@ ratingPic <- function(rating) {
   if (is.null(rating))
     return(NULL)
   
-  if (rating == "Green") {
+  if (rating == "Green" || rating == "Green But...") {
     return(list(
       src = "images/green.png",
       contentType = "image/png",
@@ -298,6 +298,7 @@ body <- dashboardBody(
                              ),
                              selectInput(inputId = "rating", label = "Your Rating:", 
                                          choices = list("Green",
+                                                        "Green But...",
                                                         "Yellow",
                                                         "Red")
                              )
@@ -305,6 +306,17 @@ body <- dashboardBody(
                       # Render Color circle image for rating
                       column(width = 2, offset = 1,
                              imageOutput("ratingImg", height = "auto")
+                      ),
+                      fluidRow(
+                        column(width = 12, offset = 0,
+                               shinyjs::hidden(
+                                 div(id = "but",
+                                     textInput(inputId = "butWhat", width = "100%",
+                                               label = "But:",
+                                               placeholder = "But what...?")
+                                 )
+                               )
+                        )
                       ),
                       fluidRow(
                         column(width = 12, offset = 0,
@@ -398,6 +410,10 @@ server <- function(input, output, session) {
     
   })
   
+  ## Reveal But What condition:
+  observeEvent(input$rating, {
+  toggle(id = "but", anim = TRUE, condition = (input$rating == "Green But...") )
+    })
   ## reset form fields
   observeEvent(input$submit, {
     shinyjs::reset("form")
