@@ -1,2 +1,5 @@
-httr-oauth
-
+# stop google oauth file from being tracked by git
+.httr-oauth
+# other files created by R and RStudio to ignore
+.Rhistory
+.RData

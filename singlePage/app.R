@@ -393,7 +393,7 @@ server <- function(input, output, session) {
     # cast inpust$date as character or all following input will look for date objects
     date <- as.character(input$date)
     data = c(date, input$projectName, input$role,input$rating,
-             input$summary, input$oneLiner, gs_user()$displayName)
+             input$summary, input$oneLiner, input$butWhat, gs_user()$displayName)
     # update google sheet
     saveData(data)
     
