@@ -89,9 +89,15 @@ ratingPic <- function(rating) {
   if (is.null(rating))
     return(NULL)
   
-  if (rating == "Green" || rating == "Green-But") {
+  if (rating == "Green") {
     return(list(
       src = "images/green.png",
+      contentType = "image/png",
+      alt = "Green"
+    ))
+  } else if (rating == "Green2") {
+    return(list(
+      src = "images/green2.png",
       contentType = "image/png",
       alt = "Green"
     ))
