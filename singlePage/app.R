@@ -86,33 +86,12 @@ today <- function(gsTBL) {
 
 # selects a color based on the rating
 ratingPic <- function(rating) {
-  if (is.null(rating))
-    return(NULL)
-  
-  if (rating == "Green") {
-    return(list(
-      src = "images/green.png",
-      contentType = "image/png",
-      alt = "Green"
-    ))
-  } else if (rating == "Green2") {
-    return(list(
-      src = "images/green2.png",
-      contentType = "image/png",
-      alt = "Green"
-    ))
-  } else if (rating == "Yellow") {
-    return(list(
-      src = "images/yellow.png",
-      filetype = "image/png",
-      alt = "Yellow"
-    ))
-  } else if (rating == "Red") {
-    return(list(
-      src = "images/red.png",
-      filetype = "image/png",
-      alt = "Red"
-    ))}
+  return(list(
+    src = paste0("images/", rating, ".png"),
+    contentType = "image/png",
+    alt = rating
+  )
+  )
 }
 
 ##=================== server.R / ui.R functions ==============## 
@@ -304,7 +283,7 @@ body <- dashboardBody(
                              ),
                              selectInput(inputId = "rating", label = "Your Rating:", 
                                          choices = list("Green" = "Green",
-                                                        "Green But..." = "Green2",
+                                                        "Green But..." = "GreenBut",
                                                         "Yellow" = "Yellow",
                                                         "Red" = "Red")
                              )
@@ -418,7 +397,7 @@ server <- function(input, output, session) {
   
   ## Reveal But What condition:
   observeEvent(input$rating, {
-  toggle(id = "but", anim = TRUE, condition = (input$rating == "Green2") )
+  toggle(id = "but", anim = TRUE, condition = (input$rating == "GreenBut") )
     })
   ## reset form fields
   observeEvent(input$submit, {
