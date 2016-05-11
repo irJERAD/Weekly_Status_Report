@@ -96,12 +96,27 @@ ratingPic <- function(rating) {
 
 ##=================== server.R / ui.R functions ==============## 
 pasteDigest <- function(x) {
+  #00FF00 Lime "Green"
+  #90EE90 LightGreen "GreenBut"
+  #FF4500 OrangeRed "Red"
+  #FFFF00 Yellow "Yellow"
+  
+  # TODO need to vectorize this function across entire data frame
+  x$background <- switch (x['rating'],
+                        #if(is.null(x$rating)) return(),
+                        "Green" = "Lime",
+                        "GreenBut" = "LightGreen",
+                        "Red" = "OrangeRed",
+                        x['rating']
+                        )
+  
   paste(
     # paste desired digest info
     "<pre style=\"background-color:", x$rating,"\">",
     "<b>Project:</b>", x$projectName,
     "<b>Role:</b>", x$role,
     "<b>Rating:</b>", x$rating,
+    "<em>", x$butWhat, "</em>",
     "<b>One Line:</b>", x$oneLiner,
     "</br>",
     # link to image in www folder by <img src='fileName.jpg' />
@@ -111,6 +126,13 @@ pasteDigest <- function(x) {
     "<hr>", sep = " "
   )}
 
+backgroundColor <- function(x) {
+  if(x$rating == "Green") x$background <- "Lime"
+  else if(x$rating == "GreenBut") x$background <- "LightGreen"
+  else if(x$rating == "Red") x$background <- "OrangeRed"
+  else x$background <- x$rating
+}
+
 
 # rendering function for digest
 digest <- function() {
@@ -119,6 +141,9 @@ digest <- function() {
     tbl <- loadData()
     # grab table of today's entries
     todayTBL <- today(tbl)
+    
+    # set background color
+    ## TODO backgroundColor(x)
     
     # send todayTBL data frame and return an array with HTML text for team summaries
     markupArray <- daply(todayTBL, 1, function(x) pasteDigest(x))
