@@ -115,13 +115,12 @@ pasteDigest <- function(x) {
     "<pre style=\"background-color:", x$rating,"\">",
     "<b>Project:</b>", x$projectName,
     "<b>Role:</b>", x$role,
-    "<b>Rating:</b>", x$rating,
-    "<em>", x$butWhat, "</em>",
-    "<b>One Line:</b>", x$oneLiner,
-    "</br>",
+    "<b>Rating:</b>", x$rating, "<br>",
+    "<em>", x$butWhat, "</em>", "<br>",
+    "<b>One Line:</b>", x$oneLiner, "</br>",
     # link to image in www folder by <img src='fileName.jpg' />
     # paste0("<img src='half", x$rating, ".png' />"),
-    "<b>Summary:</b>", x$summary,
+    "<b>Summary:</b>", x$summary,  "<br>",
     "</pre>",
     "<hr>", sep = " "
   )}
