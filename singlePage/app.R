@@ -89,7 +89,7 @@ ratingPic <- function(rating) {
   if (is.null(rating))
     return(NULL)
   
-  if (rating == "Green" || rating == "Green But...") {
+  if (rating == "Green" || rating == "Green-But") {
     return(list(
       src = "images/green.png",
       contentType = "image/png",
@@ -297,10 +297,10 @@ body <- dashboardBody(
                                          choices = roleList
                              ),
                              selectInput(inputId = "rating", label = "Your Rating:", 
-                                         choices = list("Green",
-                                                        "Green But...",
-                                                        "Yellow",
-                                                        "Red")
+                                         choices = list("Green" = "Green",
+                                                        "Green But..." = "Green2",
+                                                        "Yellow" = "Yellow",
+                                                        "Red" = "Red")
                              )
                       ),
                       # Render Color circle image for rating
@@ -412,7 +412,7 @@ server <- function(input, output, session) {
   
   ## Reveal But What condition:
   observeEvent(input$rating, {
-  toggle(id = "but", anim = TRUE, condition = (input$rating == "Green But...") )
+  toggle(id = "but", anim = TRUE, condition = (input$rating == "Green2") )
     })
   ## reset form fields
   observeEvent(input$submit, {
